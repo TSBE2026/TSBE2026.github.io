@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSBE YAPIM - Okul Sayacı</title>
+    <title>TSBE YAPIM - 2026 Okul Sayacı</title>
     <style>
         * {
             margin: 0;
@@ -16,10 +16,11 @@
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            color: white;
+            color: #fff;
             min-height: 100vh;
             padding: 20px;
             text-align: center;
+            transition: background 0.5s;
         }
         
         @keyframes gradientBG {
@@ -29,7 +30,7 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
@@ -74,6 +75,37 @@
             margin-top: 5px;
         }
         
+        .holidays {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .holiday-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .holiday-btn {
+            background: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        
+        .holiday-btn:hover {
+            transform: scale(1.05);
+            background: #34495e;
+        }
+        
         .music-player {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -94,13 +126,25 @@
             font-size: 0.9rem;
             opacity: 0.8;
         }
+
+        @media (max-width: 600px) {
+            .time-container {
+                flex-direction: column;
+            }
+            .time-unit {
+                margin: 10px 0;
+            }
+            .youtube-player iframe {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>OKUL SAYACI</h1>
+        <h1>2026 OKULLARIN KAPANMASINA KALAN SÜRE:</h1>
         <div class="counter">
-            <h2>Okulların Kapanmasına Kalan Süre:</h2>
+            <h2>Seçilen Geri Sayım:</h2>
             <div class="time-container">
                 <div class="time-unit">
                     <div class="time-value" id="days">00</div>
@@ -120,7 +164,17 @@
                 </div>
             </div>
         </div>
-        
+
+        <div class="holidays">
+            <h2>Ara Tatil Geri Sayımları:</h2>
+            <div class="holiday-buttons">
+                <button class="holiday-btn" onclick="startCountdown('holiday1')">1. Ara Tatil (10 Kas 2025)</button>
+                <button class="holiday-btn" onclick="startCountdown('holiday2')">Yarıyıl Tatili (19 Oca 2026)</button>
+                <button class="holiday-btn" onclick="startCountdown('holiday3')">2. Ara Tatil (16 Mar 2026)</button>
+                <button class="holiday-btn" onclick="startCountdown('schoolEnd')">2026 Okul Tatili (15 Haz 2026)</button>
+            </div>
+        </div>
+
         <div class="music-player">
             <h2>MÜZİK ÇALAR</h2>
             <div class="youtube-player">
@@ -128,30 +182,41 @@
                 <p>JEFF REDD X ERA7CAPONE X EGE! X WEGH - AMSTERDAM 2 [OFFICIAL MUSIC VIDEO]</p>
             </div>
         </div>
-        
+
         <footer>
-            TSBE YAPIM © 2023
+            TSBE YAPIM © 2026
         </footer>
     </div>
 
     <script>
+        let currentCountdown = 'schoolEnd';
         const daysEl = document.getElementById('days');
         const hoursEl = document.getElementById('hours');
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
 
         const schoolEndDate = new Date('June 15, 2026 00:00:00').getTime();
+        const holiday1Date = new Date('November 10, 2025 00:00:00').getTime();
+        const holiday2Date = new Date('January 19, 2026 00:00:00').getTime();
+        const holiday3Date = new Date('March 16, 2026 00:00:00').getTime();
 
-        function updateCountdown() {
+        const colors = {
+            'schoolEnd': 'linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d)',
+            'holiday1': 'linear-gradient(135deg, #2ecc71, #27ae60, #219653)',
+            'holiday2': 'linear-gradient(135deg, #3498db, #2980b9, #1f6ea6)',
+            'holiday3': 'linear-gradient(135deg, #e74c3c, #c0392b, #a93226)'
+        };
+
+        function updateCountdown(targetDate) {
             const now = new Date().getTime();
-            const distance = schoolEndDate - now;
+            const distance = targetDate - now;
 
             if (distance < 0) {
                 daysEl.innerHTML = "00";
                 hoursEl.innerHTML = "00";
                 minutesEl.innerHTML = "00";
                 secondsEl.innerHTML = "00";
-                return;
+                return false;
             }
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -163,10 +228,43 @@
             hoursEl.innerHTML = hours.toString().padStart(2, '0');
             minutesEl.innerHTML = minutes.toString().padStart(2, '0');
             secondsEl.innerHTML = seconds.toString().padStart(2, '0');
+            return true;
         }
 
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        function startCountdown(type) {
+            currentCountdown = type;
+            let targetDate;
+            switch (type) {
+                case 'holiday1':
+                    targetDate = holiday1Date;
+                    document.body.style.background = colors['holiday1'];
+                    break;
+                case 'holiday2':
+                    targetDate = holiday2Date;
+                    document.body.style.background = colors['holiday2'];
+                    break;
+                case 'holiday3':
+                    targetDate = holiday3Date;
+                    document.body.style.background = colors['holiday3'];
+                    break;
+                case 'schoolEnd':
+                    targetDate = schoolEndDate;
+                    document.body.style.background = colors['schoolEnd'];
+                    break;
+            }
+            updateCountdown(targetDate);
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                if (!updateCountdown(targetDate)) clearInterval(countdownInterval);
+            }, 1000);
+        }
+
+        let countdownInterval = setInterval(() => {
+            if (!updateCountdown(schoolEndDate)) clearInterval(countdownInterval);
+        }, 1000);
+
+        // İlk yüklemede varsayılan geri sayım
+        startCountdown('schoolEnd');
     </script>
 </body>
 </html>
